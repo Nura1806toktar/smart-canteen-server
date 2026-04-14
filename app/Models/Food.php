@@ -9,6 +9,10 @@ use App\Models\Rating;
 
 class Food extends Model
 {
+    protected $casts = [
+        'price' => 'float',
+        'available' => 'boolean',
+    ];
     protected $table = 'foods';
     protected $fillable = [
         'name',
@@ -16,6 +20,7 @@ class Food extends Model
         'price',
         'category_id',
         'image',
+        'available',
     ];
     public function category()
     {

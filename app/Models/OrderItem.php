@@ -8,6 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class OrderItem extends Model
 {
+    protected $casts = [
+        'price' => 'float',
+    ];
+
+    protected $fillable = [
+        'order_id',
+        'food_id',
+        'quantity',
+        'price',
+    ];
     public function order()
     {
         return $this->belongsTo(Order::class);
