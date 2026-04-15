@@ -21,7 +21,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/foods', [FoodController::class, 'index']);
     Route::post('/foods', [FoodController::class, 'store']);
-    Route::get('/foods/{food}', [FoodController::class, 'show']);
+    Route::get('/foods/{id}', [FoodController::class, 'show']);
     Route::put('/foods/{id}', [FoodController::class, 'update']);
     Route::patch('/foods/{id}', [FoodController::class, 'update']);
     Route::delete('/foods/{id}', [FoodController::class, 'destroy']);
@@ -38,4 +38,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/orders/{id}/cancel', [OrderController::class, 'cancel']);
 
     Route::get('admin/analytics', [OrderController::class, 'analytics']);
+
+    Route::post('/food/{food}/rating', [FoodController::class, 'store']);
+    Route::get('/food/{food}/rating', [FoodController::class, 'index']);
+    Route::delete('/food/{food}/rating', [FoodController::class, 'destroy']);
 });

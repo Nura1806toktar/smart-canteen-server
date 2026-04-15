@@ -6,12 +6,59 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Food;
+use App\Models\Category;
+use App\Models\Rating;
 
 class FoodController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Food::with('category')->paginate(15);
+        $request->validate([
+            'search' => 'string|min:2|max:100',
+            'category_id' => 'exists:categories,id',
+            'available' => 'boolean',
+            'min_price' => 'numeric|min:0',
+            'max_price' => 'numeric|min:0',
+            'sort_price' => 'in:asc,desc',
+        ]);
+
+        $query = Food::with(['category:id,name'])
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings');
+
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->has('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('available')) {
+            $query->where('available', $request->available);
+        } else {
+            $query->where('available', true);
+        }
+
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        if ($request->has('sort_price')) {
+            $query->orderBy('price', $request->sort_price === 'desc' ? 'desc' : 'asc');
+        } else {
+            $query->latest();
+        }
+
+        $perPage = $request->get('per_page', 10);
+
+        $foods = $query->paginate($perPage);
+
+        return response()->json($foods);
     }
 
     public function store(Request $request)
@@ -29,9 +76,16 @@ class FoodController extends Controller
         return response()->json($food, 201);
     }
 
-    public function show(Food $food)
+    public function show(Food $id)
     {
-        return response()->json($food->load('category'));
+        $food = Food::with('category')
+            ->withAvg('ratings', 'rating')
+            ->withCount('ratings')
+            ->findOrFail($id);
+
+        $food->load('ratings.user');
+
+        return response()->json($food);
     }
 
     public function update(Request $request, $id)

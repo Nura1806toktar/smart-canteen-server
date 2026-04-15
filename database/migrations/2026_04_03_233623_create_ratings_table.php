@@ -20,8 +20,11 @@ return new class extends Migration
             $table->foreignId('food_id')
                 ->constrained('foods')
                 ->cascadeOnDelete();
-            $table->integer('rating');
+
+            $table->tinyInteger('rating');
             $table->text('comment')->nullable();
+
+            $table->unique(['user_id', 'food_id']);
 
             $table->timestamps();
         });

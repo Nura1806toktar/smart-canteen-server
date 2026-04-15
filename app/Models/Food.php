@@ -33,4 +33,19 @@ class Food extends Model
      public function ratings(){
         return $this->hasMany(Rating::class);
      }
+     public function averageRating(){
+        return $this->ratings()->avg('rating');
+     }
+     public function ratingsCount(){
+        return $this->ratings()->count();
+     }
+
+     public function getAverageRatingAttribute(){
+        return round($this->ratings()->avg('rating'), 2);
+     }
+
+     public function getRatingCountAttribute()
+     {
+         return $this->ratings()->count();
+     }
 }
