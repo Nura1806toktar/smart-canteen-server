@@ -76,7 +76,7 @@ class FoodController extends Controller
         return response()->json($food, 201);
     }
 
-    public function show(Food $id)
+    public function show($id)
     {
         $food = Food::with('category')
             ->withAvg('ratings', 'rating')

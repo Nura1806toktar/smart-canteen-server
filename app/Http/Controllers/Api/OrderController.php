@@ -164,7 +164,9 @@ class OrderController extends Controller
     public function kitchenOrders(Request $request)
     {
         $user = Auth::user();
-        if(!in_array($user->role_id, [1, 3])) {
+
+        // Role check
+        if (!in_array($user->role_id, [1, 3])) {
             return response()->json([
                 'message' => 'Forbidden'
             ], 403);
@@ -172,10 +174,14 @@ class OrderController extends Controller
 
         $perPage = $request->get('per_page', 10);
 
-        $orders = Order::with(['user', 'items.food.category'])
+        $orders = Order::with([
+            'user:id,name',
+            'items.food:id,name,category_id',
+            'items.food.category:id,name'
+        ])
             ->whereIn('status', [
                 Order::STATUS_PENDING,
-                Order::STATUS_PREPARING,
+                Order::STATUS_PREPARING
             ])
             ->latest()
             ->paginate($perPage);
@@ -186,7 +192,9 @@ class OrderController extends Controller
     public function readyOrders(Request $request)
     {
         $user = Auth::user();
-        if(!in_array($user->role_id, [1, 3])) {
+
+        // Role check
+        if (!in_array($user->role_id, [1, 3])) {
             return response()->json([
                 'message' => 'Forbidden'
             ], 403);
@@ -194,8 +202,12 @@ class OrderController extends Controller
 
         $perPage = $request->get('per_page', 10);
 
-        $orders = Order::with(['user', 'items.food.category'])
-            ->whereIn('status', [Order::STATUS_READY])
+        $orders = Order::with([
+            'user:id,name',
+            'items.food:id,name,category_id',
+            'items.food.category:id,name'
+        ])
+            ->where('status', Order::STATUS_READY)
             ->latest()
             ->paginate($perPage);
 
